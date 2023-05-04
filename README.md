@@ -25,3 +25,7 @@ React based Basic Book Library
 - all the stylings are done in ./components/style.css
 
 * for package maanger I have used `yarn` and node-version (14)
+
+## Here's how the project looks
+
+![Selection_362](https://user-images.githubusercontent.com/27343592/236137916-e4b031b6-a69b-4371-a82d-ef99247013af.png)
