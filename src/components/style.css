@@ -41,6 +41,7 @@ p {
     margin-top: 8px;
     vertical-align: middle;
     width: 50%;
+    max-height: 135px;
 }
 
 .container {
@@ -300,6 +301,7 @@ p {
 
     .column img {
         width: 90%;
+        max-height: 400px;
     }
 
     .card-div {
@@ -331,6 +333,16 @@ p {
     align-content: center;
     align-items: center;
     justify-content: center
+}
+
+.infinite-loader-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5%;
 }
 
 .loader {

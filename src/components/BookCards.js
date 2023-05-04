@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { download_icon } from '../assets/data';
 import './style.css';
 

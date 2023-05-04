@@ -2,17 +2,31 @@ import React, { useEffect, useState } from 'react';
 import BookCard from './BookCards';
 import { baseUrl } from '../assets/config';
 import { search_icon, user_icon } from '../assets/data';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import './style.css';
 
 export default function SearchBook() {
   const [query, setQuery] = useState('');
   const [booksData, setBooksData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  async function getBooks() {
+  async function getBooks(searchQuery, page) {
     try {
-      const res = await fetch(baseUrl);
+      const url = searchQuery
+        ? `${baseUrl}?search=${searchQuery}&page=${page}`
+        : `${baseUrl}?page=${page}`;
+      const res = await fetch(url);
       const data = await res.json();
-      setBooksData(data?.results);
+      if (page === 1) {
+        setBooksData(data?.results);
+      } else {
+        setBooksData([...booksData, ...data?.results]);
+      }
+      setLoading(false);
+      setHasMore(data?.next !== null);
     } catch (error) {
       console.log(error);
     }
@@ -20,24 +34,28 @@ export default function SearchBook() {
 
   const handleSearchInput = (e) => {
     setQuery(e.target.value);
-    if (e.target.value === '') getBooks();
+    if (e.target.value === '') {
+      setCurrentPage(1);
+      setBooksData([]);
+      setHasMore(true);
+      setSearchQuery('');
+      getBooks('', 1);
+    }
   };
 
   const searchBooks = (e) => {
     e.preventDefault();
-    const filteredData = booksData.filter(
-      (book) =>
-        book.title.toLowerCase().includes(query.toLowerCase()) ||
-        book.authors.some((author) =>
-          author.name.toLowerCase().includes(query.toLowerCase())
-        )
-    );
-    setBooksData(filteredData);
+    setSearchQuery(query);
+    setCurrentPage(1);
+    setBooksData([]);
+    setHasMore(true);
+    getBooks(query.toLowerCase(), 1);
   };
 
   useEffect(() => {
-    getBooks();
-  }, []);
+    setLoading(true);
+    getBooks(query.toLowerCase(), currentPage);
+  }, [currentPage]);
 
   return (
     <>
@@ -74,15 +92,36 @@ export default function SearchBook() {
           </div>
         </div>
       </form>
-      <div className='row'>
-        {booksData.length > 0 ? (
-          booksData.map((book) => <BookCard book={book} key={book.id} />)
-        ) : (
-          <div className='loader-container'>
-            <div className='loader'></div>
-          </div>
-        )}
-      </div>
+      <h6>
+        {searchQuery
+          ? `Searched Books : ${booksData?.length}`
+          : `Number of Books :${booksData?.length}`}
+      </h6>
+      <InfiniteScroll
+        dataLength={booksData.length}
+        next={() => setCurrentPage(currentPage + 1)}
+        hasMore={hasMore}
+        loader={
+          <h2 className='infinite-loader-container'>
+            Loading more books............
+          </h2>
+        }
+        endMessage={
+          <h3 className='infinite-loader-container'>No more books to show</h3>
+        }
+      >
+        <div className='row'>
+          <>
+            {booksData?.length > 0 ? (
+              booksData?.map((book) => <BookCard book={book} key={book.id} />)
+            ) : (
+              <div className='loader-container'>
+                <div className='loader'></div>
+              </div>
+            )}
+          </>
+        </div>
+      </InfiniteScroll>
     </>
   );
 }
